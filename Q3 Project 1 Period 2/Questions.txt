@@ -1,3 +1,41 @@
 Questions:
+ 
+What is this project about?[O]
 
-Write as many questions as you can based on the project specs.
+Can we work with other people during this project/collaborate w/ them?[C]
+
+When is this project due?[C]
+
+What technical skills do we need to complete this project?[O]
+
+Do we need to present our final work  to the class/ have a walkaround?[C]
+
+What are the main steps we need to take to finish this on time?[O]
+
+Is there a minimum word count or length requirement (code/output)?[C]
+
+Where can we find the grading rubric?[O]
+
+Can we choose our own specific topic for this project?[C]
+
+What happens if we turn the assignment in late/are absent?[O]
+
+Are we allowed to use outside websites for research?[C]
+
+How should we format our final submission (like a document, slideshow, or video), and have a javadocs?[O]
+
+Are there certain steps we have to take to complete this project?[C]
+
+What matreials or software programs do we need to use?[O]
+
+Do we need to include a bibliography or cite our sources (if any, if needed)?(C]
+
+Who can we ask for help if we get stuck or confused... Are we all doing the same thing so we can help eachother?[O]
+
+Are there any examples of good past projects we can look at?[C]
+
+What is the most challenging part of this project going to be?[O]
+
+Can we get ec for doing more than the requirements?[C]
+
+How does this project connect to what we are currently learning in class?[O]
