@@ -18,7 +18,7 @@ public class mapRunner {
         }
         
   
-    public static String[][][] getTextBasedMap(String fileName) throws FileNotFoundException {
+    public static String[][][] getTextBasedMap(String filePath) throws FileNotFoundException {
     	File mapFile= new File(filePath);
         Scanner fileScan= new Scanner(mapFile);
         int numRows= fileScan.nextInt();
@@ -47,8 +47,16 @@ public class mapRunner {
     
     }
 
-    public static void printMap(String[][][] map) {
-    	
+    public static void printMap(String[][][] gridToPrint) {
+    	for(int i= 0; i < gridToPrint.length; i++) {
+            for(int j= 0; j < gridToPrint[i].length; j++) {
+                for(int k= 0; k < gridToPrint[i][j].length; k++) {
+                    System.out.print(gridToPrint[i][j][k]);
+                }
+                System.out.println();                
+            }
+            System.out.println(); 
+        }
 
     }
 }
