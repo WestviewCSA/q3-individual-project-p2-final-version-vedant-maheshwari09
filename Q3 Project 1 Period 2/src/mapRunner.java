@@ -41,10 +41,36 @@ public class mapRunner {
            
 
  
-    public static String[][][] getCoordinateBasedMap(String fileName) throws FileNotFoundException {
-
+    public static String[][][] getCoordinateBasedMap(String filePath) throws FileNotFoundException {
+    	File mapFile= new File(filePath);
+        Scanner fileScan= new Scanner(mapFile);
+        int numRows= fileScan.nextInt();
+        int numCols= fileScan.nextInt();
+        int numLevels= fileScan.nextInt();
         
-    
+        String[][][] mazeGrid= new String[numLevels][numRows][numCols];
+
+        while(fileScan.hasNext()) {
+            String cellChar= fileScan.next();
+            int r= Integer.parseInt(fileScan.next());
+            int c= Integer.parseInt(fileScan.next());
+            int l= Integer.parseInt(fileScan.next());
+            
+            mazeGrid[l][r][c]= cellChar;
+        }
+        
+        for(int i= 0; i < numLevels; i++) {
+            for(int j= 0; j < numRows; j++) {
+                for(int k= 0; k < numCols; k++) {
+                    if(mazeGrid[i][j][k]== null) {
+                        mazeGrid[i][j][k]= ".";
+                    }
+                }
+            }
+        }
+        
+        fileScan.close();
+        return mazeGrid;
     }
 
     public static void printMap(String[][][] gridToPrint) {
