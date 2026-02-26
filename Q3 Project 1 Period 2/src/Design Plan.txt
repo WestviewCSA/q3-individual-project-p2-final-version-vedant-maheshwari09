@@ -1,0 +1,15 @@
+Week 1:
+Push what I have so far (the map reading and command line stuff) to the GitHub classroom repo.
+Make a helper class to keep track of the rows, columns, and levels.
+Start figuring out the Queue routing approach.
+
+Week 2:
+Finish the Queue code and make sure it actually works on the Easy and Medium maps.
+Write the code for the Stack routing approach.
+Try to get the Optimal (--Opt) routing done too.
+
+Week 3:
+Add the extra output stuff like --Outcoordinate, --Time, and printing the solved map.
+Test all the different maps and commands to find and fix any bugs so it doesn't crash.
+Clean up my code, do a final push to GitHub, and turn it in!
+

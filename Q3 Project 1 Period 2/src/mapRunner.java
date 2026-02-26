@@ -14,7 +14,7 @@ public class mapRunner {
         boolean outCoord= false;
 
         for(String arg : args) {
-            if(arg.equals("--Stack")) {
+            if(arg.equals("--Stack")) { //currently added to args in config
                 stackBase= true;
             }
             if(arg.equals("--Queue")) {
