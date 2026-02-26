@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class mapRunner {
     //where it all begins fr
     public static void main(String[] args) throws FileNotFoundException {
+    	//set all booleans to false
         boolean queueBase= false;
         boolean stackBase= false;
         boolean optimal= false;
@@ -28,6 +29,7 @@ public class mapRunner {
             if(arg.equals("--Incoordinate")) {
                 inCoord= true;
             }
+            
             if(arg.equals("--Outcoordinate")) {
                 outCoord= true;
             }
@@ -36,7 +38,6 @@ public class mapRunner {
                 System.exit(0);
             }
         }
-
         int routeCount= 0;
         if(stackBase == true) {
             routeCount++;
@@ -55,12 +56,12 @@ public class mapRunner {
 
         if (inCoord == false) {
             // Here is the test Text-Based Map
-            String[][][] gridMap= getTextBasedMap("src/Easy.txt");
+            String[][][] gridMap= getTextBasedMap("EasyText1");
             System.out.println("Text-Based Map:");
             printMap(gridMap);
         } else {
             // And here is the test Cordinate-Based Map
-            String[][][] coordMap= getCoordinateBasedMap("src/coordinate.txt");
+            String[][][] coordMap= getCoordinateBasedMap("CoordinateText");
             System.out.println("\n");
             System.out.println("Coordinate-Based Map:");
             printMap(coordMap);
@@ -75,7 +76,7 @@ public class mapRunner {
         int numLevels= fileScan.nextInt();
         
         if (numRows <= 0 || numCols <= 0 || numLevels <= 0) {
-            System.err.println("Error: Map dimensions must be greater than zero.");
+            System.err.println("Error: Map dimensions must be greater than zero");
             System.exit(1);
         }
         String[][][] mazeGrid= new String[numLevels][numRows][numCols];
@@ -105,7 +106,7 @@ public class mapRunner {
         int numLevels= fileScan.nextInt();
         
         if (numRows <= 0 || numCols <= 0 || numLevels <= 0) {
-            System.err.println("Error: Map dimensions must be greater than zero.");
+            System.err.println("Error: The map dimensions must be greater than zero");
             System.exit(1);
         }
 
@@ -121,7 +122,6 @@ public class mapRunner {
                 System.err.println("Error: Coordinate (" + r + "," + c + "," + l + ") is out of bounds.");
                 System.exit(1);
             }
-
             mazeGrid[l][r][c]= cellChar;
         }
         
