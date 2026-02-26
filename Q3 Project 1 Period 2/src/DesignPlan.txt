@@ -11,5 +11,4 @@ Try to get the Optimal (--Opt) routing done too.
 Week 3:
 Add the extra output stuff like --Outcoordinate, --Time, and printing the solved map.
 Test all the different maps and commands to find and fix any bugs so it doesn't crash.
-Clean up my code, do a final push to GitHub, and turn it in!
-
+Clean up my code, do a final push to gitHub, and turn it in!
