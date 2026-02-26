@@ -38,6 +38,7 @@ public class mapRunner {
                 System.exit(0);
             }
         }
+        
         int routeCount= 0;
         if(stackBase == true) {
             routeCount++;
@@ -48,12 +49,10 @@ public class mapRunner {
         if(optimal == true) {
             routeCount++;
         }
-
         if(routeCount != 1) {
             System.err.println("Error!: Must include exactly uno of --Stack, --Queue, or --Opt");
             System.exit(-1);
         }
-
         if (inCoord == false) {
             // Here is the test Text-Based Map
             String[][][] gridMap= getTextBasedMap("EasyText1");
@@ -79,6 +78,7 @@ public class mapRunner {
             System.err.println("Error: Map dimensions must be greater than zero");
             System.exit(1);
         }
+        
         String[][][] mazeGrid= new String[numLevels][numRows][numCols];
         for(int i= 0; i < numLevels; i++) {
             for(int j= 0; j < numRows; j++) {
