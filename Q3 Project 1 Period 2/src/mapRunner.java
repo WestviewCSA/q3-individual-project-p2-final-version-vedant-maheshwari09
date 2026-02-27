@@ -55,7 +55,7 @@ public class mapRunner {
         }
         if (inCoord == false) {
             // Here is the test Text-Based Map
-            String[][][] gridMap= getTextBasedMap("EasyText1");
+            String[][][] gridMap= getTextBasedMap("HardText1");
             System.out.println("Text-Based Map:");
             printMap(gridMap);
         } else {
