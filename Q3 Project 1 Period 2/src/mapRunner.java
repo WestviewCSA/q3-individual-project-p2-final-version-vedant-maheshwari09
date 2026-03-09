@@ -12,6 +12,7 @@ public class mapRunner {
         boolean showTime= false;
         boolean inCoord= false;
         boolean outCoord= false;
+        String fileName = "";
 
         for(String arg : args) {
             if(arg.equals("--Stack")) { //currently added to args in config
@@ -29,13 +30,15 @@ public class mapRunner {
             if(arg.equals("--Incoordinate")) {
                 inCoord= true;
             }
-            
             if(arg.equals("--Outcoordinate")) {
                 outCoord= true;
             }
             if(arg.equals("--Help!!!!!!")) {
                 System.out.println("Help!: Use --Stack, --Queue, or --Opt for rounting. Use --Incoordinate for coord-based map reading");
                 System.exit(0);
+            }
+            else if(!arg.startsWith("--")) {
+                fileName = arg;
             }
         }
         
@@ -53,12 +56,17 @@ public class mapRunner {
             System.err.println("Error!: Must include exactly uno of --Stack, --Queue, or --Opt");
             System.exit(-1);
         }
+        if (fileName.isEmpty()) {
+            System.err.println("Error!: There is no map file specfied in command line.");
+            System.exit(-1);
+        }
         if (inCoord == false) {
             // Here is the test Text-Based Map
             String[][][] gridMap= getTextBasedMap("HardText1");
             System.out.println("Text-Based Map:");
             printMap(gridMap);
-        } else {
+        } 
+        else {
             // And here is the test Cordinate-Based Map
             String[][][] coordMap= getCoordinateBasedMap("CoordinateText");
             System.out.println("\n");
@@ -85,7 +93,7 @@ public class mapRunner {
                 String rowStr= fileScan.next();
                 
                 if (rowStr.length() < numCols) {
-                    System.err.println("Error: Incomplete map line found at row " + j);
+                    System.err.println("Error: There is an incomplete map line found at the row " + j);
                     System.exit(1);
                 }
 
@@ -106,7 +114,7 @@ public class mapRunner {
         int numLevels= fileScan.nextInt();
         
         if (numRows <= 0 || numCols <= 0 || numLevels <= 0) {
-            System.err.println("Error: The map dimensions must be greater than zero");
+            System.err.println("Error: The map dimensions have to  be greater than zero");
             System.exit(1);
         }
 
