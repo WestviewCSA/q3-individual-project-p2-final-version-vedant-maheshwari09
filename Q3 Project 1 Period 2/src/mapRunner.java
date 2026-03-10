@@ -159,4 +159,26 @@ public class mapRunner {
         }
 
     }
+ // This method finds the starting point 
+    public static Location findStart(String[][][] map) {
+        for(int l=0; l < map.length; l++) {
+            for(int r=0; r <map[l].length; r++) {
+                for(int c=0; c < map[l][r].length; c++) {
+                    if(map[l][r][c].equals("W") || map[l][r][c].equals("S")) {
+                        return new Location(r, c, l, null);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    // This checks if a move is inside the map, and noe a wall ('@')
+    public static boolean isValid(String[][][] map, int r, int c, int l) {
+        if (l < 0 || l >= map.length) return false;
+        if (r < 0 || r >= map[l].length) return false;
+        if (c < 0 || c >= map[l][r].length) return false;
+        if (map[l][r][c].equals("@")) return false; // Wall
+        return true;
+    }
 }
