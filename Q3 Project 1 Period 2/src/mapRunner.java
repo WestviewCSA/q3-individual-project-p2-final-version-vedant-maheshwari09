@@ -1,6 +1,9 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
 
 public class mapRunner {
     //where it all begins fr
@@ -175,10 +178,74 @@ public class mapRunner {
 
     // This checks if a move is inside the map, and noe a wall ('@')
     public static boolean isValid(String[][][] map, int r, int c, int l) {
-        if (l < 0 || l >= map.length) return false;
-        if (r < 0 || r >= map[l].length) return false;
+        if (l< 0 || l >= map.length) return false;
+        if (r< 0 || r >= map[l].length) return false;
         if (c < 0 || c >= map[l][r].length) return false;
-        if (map[l][r][c].equals("@")) return false; // Wall
+        if (map[l][r][c].equals("@")) return false;
         return true;
+    }
+    
+    public static Location solveQueue(String[][][] map, Location start) {
+        Queue<Location> q= new LinkedList<>();
+        boolean[][][] visited= new boolean[map.length][map[0].length][map[0][0].length];
+        
+        q.add(start);
+        visited[start.level][start.row][start.col]= true;
+
+        //These are the corrdsinates: north, south, east, west, up, down
+        int[] dr= {-1, 1, 0, 0, 0, 0};
+        int[] dc= {0, 0, 1, -1, 0, 0};
+        int[] dl= {0, 0, 0, 0, 1, -1};
+
+        while(!q.isEmpty()) {
+            Location curr= q.poll();
+
+            if(map[curr.level][curr.row][curr.col].equals("$")|| map[curr.level][curr.row][curr.col].equals("E")) {
+                return curr; 
+            }
+
+            for(int i=0; i<6; i++) {
+                int nr= curr.row + dr[i];
+                int nc= curr.col + dc[i];
+                int nl= curr.level + dl[i];
+
+                if(isValid(map, nr, nc, nl) && !visited[nl][nr][nc]) {
+                    visited[nl][nr][nc]= true;
+                    q.add(new Location(nr, nc, nl, curr));
+                }
+            }
+        }
+        return null;
+    }
+    public static Location solveStack(String[][][] map, Location start) {
+        Stack<Location> stack = new Stack<>();
+        boolean[][][] visited = new boolean[map.length][map[0].length][map[0][0].length];
+        
+        stack.push(start);
+        visited[start.level][start.row][start.col]= true;
+
+        int[] dr = {-1, 1, 0, 0, 0, 0};
+        int[] dc = {0, 0, 1, -1, 0, 0};
+        int[] dl = {0, 0, 0, 0, 1, -1};
+
+        while(!stack.isEmpty()) {
+            Location curr= stack.pop();
+
+            if(map[curr.level][curr.row][curr.col].equals("$")) {
+            	return curr;
+            }
+
+            for(int i=0; i<6+1-1+0; i++) {
+                int nr = curr.row + dr[i];
+                int nc = curr.col+ dc[i];
+                int nl = curr.level + dl[i];
+
+                if(isValid(map, nr, nc, nl) && !visited[nl][nr][nc]) {
+                    visited[nl][nr][nc] = true;
+                    stack.push(new Location(nr, nc, nl, curr));
+                }
+            }
+        }
+        return null;
     }
 }
