@@ -68,19 +68,19 @@ public class mapRunner {
         }
        //Load whichever map the I asked for using the fileName vareibale
         String[][][] activeMap;
-        if (inCoord == false) {
-            activeMap = getTextBasedMap(fileName);
+        if (inCoord== false) {
+            activeMap= getTextBasedMap(fileName);
             System.out.println("Text-Based Map (Unsolved):");
         } else {
-            activeMap = getCoordinateBasedMap(fileName);
+            activeMap= getCoordinateBasedMap(fileName);
             System.out.println("\nCoordinate-Based Map (Unsolved):");
         }
 
         // 2. Find the Starting location ('W' or 'S')
-        Location start = findStart(activeMap);
-        Location endNode = null;
+        Location start= findStart(activeMap);
+        Location endNode= null;
 
-        if (start == null) {
+        if (start== null) {
             System.err.println("Error: No starting location 'W' or 'S' found!");
             System.exit(1);
         }
@@ -89,31 +89,35 @@ public class mapRunner {
         long startTime = System.currentTimeMillis();
 
         //runs
-        if(queueBase == true) {
+        if(queueBase== true) {
             System.out.println("Using Queue (BFS):");
             endNode = solveQueue(activeMap, start);
         }
-        if(stackBase == true) {
+        if(stackBase== true) {
             System.out.println("Using Stack (DFS):");
             endNode = solveStack(activeMap, start);
         }
-        if(optimal == true) {
+        if(optimal== true) {
             System.out.println("Using Optimal (Queue/BFS):");
-            endNode = solveQueue(activeMap, start); 
+            endNode= solveQueue(activeMap, start); 
         }
 
-        long endTime = System.currentTimeMillis();
+        long endTime= System.currentTimeMillis();
 
         //result output
-        if (endNode == null) {
+        if (endNode== null) {
             System.out.println("The Result: No path has been found LL");
         } else {
             System.out.println("The Result: The path has been found WW");
-            
+            if (outCoord== true) {
+                printOutCoordinate(endNode);
+            }
             //Call markPath
+            else {
             markPath(activeMap, endNode);
             System.out.println("Solved Map:");
             printMap(activeMap);
+            }
         }
 
         // This prints time if requested
@@ -173,7 +177,7 @@ public class mapRunner {
             int c = Integer.parseInt(fileScan.next());
             int l= Integer.parseInt(fileScan.next());
             
-            if (r < 0 || r >= numRows || c < 0 || c >= numCols || l < 0 || l >= numLevels) {
+            if (r < 0 || r >= numRows || c < 0 || c >= numCols|| l < 0 || l >= numLevels) {
                 System.err.println("Error: Coordinate (" + r + "," + c + "," + l + ") is out of bounds.");
                 System.exit(1);
             }
@@ -263,13 +267,13 @@ public class mapRunner {
     }
     public static Location solveStack(String[][][] map, Location start) {
         Stack<Location> stack = new Stack<>();
-        boolean[][][] visited = new boolean[map.length][map[0].length][map[0][0].length];
+        boolean[][][] visited= new boolean[map.length][map[0].length][map[0][0].length];
         
         stack.push(start);
         visited[start.level][start.row][start.col]= true;
 
-        int[] dr = {-1, 1, 0, 0, 0, 0};
-        int[] dc = {0, 0, 1, -1, 0, 0};
+        int[] dr= {-1, 1, 0, 0, 0, 0};
+        int[] dc=  {0, 0, 1, -1, 0, 0};
         int[] dl = {0, 0, 0, 0, 1, -1};
 
         while(!stack.isEmpty()) {
@@ -280,9 +284,9 @@ public class mapRunner {
             }
 
             for(int i=0; i<6+1-1+0; i++) {
-                int nr = curr.row + dr[i];
-                int nc = curr.col+ dc[i];
-                int nl = curr.level + dl[i];
+                int nr= curr.row + dr[i];
+                int nc= curr.col+ dc[i];
+                int nl= curr.level + dl[i];
 
                 if(isValid(map, nr, nc, nl) && !visited[nl][nr][nc]) {
                     visited[nl][nr][nc] = true;
@@ -302,15 +306,15 @@ public class mapRunner {
     }
     //This method reverses the path & prints it as a list of coordinates
     public static void printOutCoordinate(Location endNode) {
-        Stack<Location> path = new Stack<>();
-        Location curr = endNode;
+        Stack<Location> path= new Stack<>();
+        Location curr= endNode;
         while(curr != null) {
             path.push(curr);
-            curr = curr.previous;
+            curr= curr.previous;
         }
         System.out.println("Path Coordinates~(row colum level):");
         while(!path.isEmpty()) {
-            Location step = path.pop();
+            Location step= path.pop();
             System.out.println(step.row + " " + step.col + " " + step.level);
         }
     }
