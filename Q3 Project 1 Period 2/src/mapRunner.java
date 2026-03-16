@@ -48,19 +48,22 @@ public class mapRunner {
         int routeCount= 0;
         if(stackBase == true) {
             routeCount++;
+            //System.out.println("We are running Stack");
         }
         if(queueBase== true) {
             routeCount++;
+            //System.out.println("We are running Queue");
         }
         if(optimal == true) {
             routeCount++;
+            //System.out.println("We are running the Optimal Path");
         }
         if(routeCount != 1) {
-            System.err.println("Error!: Must include exactly uno of --Stack, --Queue, or --Opt");
+            System.err.println("Error: It must have 1 --Stack, --Queue, or --Opt");
             System.exit(-1);
         }
         if (fileName.isEmpty()) {
-            System.err.println("Error!: There is no map file specfied in command line.");
+            System.err.println("Error: There is no map file specfied in command line. Has to have 1.");
             System.exit(-1);
         }
        //Load whichever map the I asked for using the fileName vareibale
@@ -109,8 +112,8 @@ public class mapRunner {
             
             //Call markPath
             markPath(activeMap, endNode);
-            System.out.println("\nSolved Map:");
-            printMap(activeMap); 
+            System.out.println("Solved Map:");
+            printMap(activeMap);
         }
 
         // This prints time if requested
@@ -208,7 +211,7 @@ public class mapRunner {
         for(int l=0; l < map.length; l++) {
             for(int r=0; r <map[l].length; r++) {
                 for(int c=0; c < map[l][r].length; c++) {
-                    if(map[l][r][c].equals("W") || map[l][r][c].equals("S")) {
+                    if(map[l][r][c].equals("W")) {
                         return new Location(r, c, l, null);
                     }
                 }
@@ -241,7 +244,7 @@ public class mapRunner {
         while(!q.isEmpty()) {
             Location curr= q.poll();
 
-            if(map[curr.level][curr.row][curr.col].equals("$")|| map[curr.level][curr.row][curr.col].equals("E")) {
+            if(map[curr.level][curr.row][curr.col].equals("$")) {
                 return curr; 
             }
 
@@ -295,6 +298,20 @@ public class mapRunner {
         while(curr!= null &&curr.previous != null) { 
             map[curr.level][curr.row][curr.col] ="+"; 
             curr= curr.previous;
+        }
+    }
+    //This method reverses the path & prints it as a list of coordinates
+    public static void printOutCoordinate(Location endNode) {
+        Stack<Location> path = new Stack<>();
+        Location curr = endNode;
+        while(curr != null) {
+            path.push(curr);
+            curr = curr.previous;
+        }
+        System.out.println("Path Coordinates~(row colum level):");
+        while(!path.isEmpty()) {
+            Location step = path.pop();
+            System.out.println(step.row + " " + step.col + " " + step.level);
         }
     }
     
