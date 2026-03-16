@@ -49,7 +49,7 @@ public class mapRunner {
         if(stackBase == true) {
             routeCount++;
         }
-        if(queueBase == true) {
+        if(queueBase== true) {
             routeCount++;
         }
         if(optimal == true) {
@@ -63,18 +63,59 @@ public class mapRunner {
             System.err.println("Error!: There is no map file specfied in command line.");
             System.exit(-1);
         }
+       //Load whichever map the I asked for using the fileName vareibale
+        String[][][] activeMap;
         if (inCoord == false) {
-            // Here is the test Text-Based Map
-            String[][][] gridMap= getTextBasedMap("HardText1");
-            System.out.println("Text-Based Map:");
-            printMap(gridMap);
-        } 
-        else {
-            // And here is the test Cordinate-Based Map
-            String[][][] coordMap= getCoordinateBasedMap("CoordinateText");
-            System.out.println("\n");
-            System.out.println("Coordinate-Based Map:");
-            printMap(coordMap);
+            activeMap = getTextBasedMap(fileName);
+            System.out.println("Text-Based Map (Unsolved):");
+        } else {
+            activeMap = getCoordinateBasedMap(fileName);
+            System.out.println("\nCoordinate-Based Map (Unsolved):");
+        }
+
+        // 2. Find the Starting location ('W' or 'S')
+        Location start = findStart(activeMap);
+        Location endNode = null;
+
+        if (start == null) {
+            System.err.println("Error: No starting location 'W' or 'S' found!");
+            System.exit(1);
+        }
+
+        // starts time (and then ends it after)
+        long startTime = System.currentTimeMillis();
+
+        //runs
+        if(queueBase == true) {
+            System.out.println("Using Queue (BFS):");
+            endNode = solveQueue(activeMap, start);
+        }
+        if(stackBase == true) {
+            System.out.println("Using Stack (DFS):");
+            endNode = solveStack(activeMap, start);
+        }
+        if(optimal == true) {
+            System.out.println("Using Optimal (Queue/BFS):");
+            endNode = solveQueue(activeMap, start); 
+        }
+
+        long endTime = System.currentTimeMillis();
+
+        //result output
+        if (endNode == null) {
+            System.out.println("The Result: No path has been found LL");
+        } else {
+            System.out.println("The Result: The path has been found WW");
+            
+            //Call markPath
+            markPath(activeMap, endNode);
+            System.out.println("\nSolved Map:");
+            printMap(activeMap); 
+        }
+
+        // This prints time if requested
+        if (showTime == true) {
+            System.out.println("Routing took: " + (endTime - startTime) + " ms");
         }
     }
     //This is the getTextBasedMap method (it's static): It essentially converts a grid formatted file into a 3D array. 
@@ -113,7 +154,7 @@ public class mapRunner {
         File mapFile= new File(filePath);
         Scanner fileScan= new Scanner(mapFile);
         int numRows= fileScan.nextInt();
-        int numCols= fileScan.nextInt();
+        int numCols = fileScan.nextInt();
         int numLevels= fileScan.nextInt();
         
         if (numRows <= 0 || numCols <= 0 || numLevels <= 0) {
@@ -126,7 +167,7 @@ public class mapRunner {
         while(fileScan.hasNext()) {
             String cellChar= fileScan.next();
             int r= Integer.parseInt(fileScan.next());
-            int c= Integer.parseInt(fileScan.next());
+            int c = Integer.parseInt(fileScan.next());
             int l= Integer.parseInt(fileScan.next());
             
             if (r < 0 || r >= numRows || c < 0 || c >= numCols || l < 0 || l >= numLevels) {
@@ -248,4 +289,13 @@ public class mapRunner {
         }
         return null;
     }
+    //backwards
+    public static void markPath(String[][][] map, Location endNode) {
+        Location curr= endNode.previous; 
+        while(curr!= null &&curr.previous != null) { 
+            map[curr.level][curr.row][curr.col] ="+"; 
+            curr= curr.previous;
+        }
+    }
+    
 }
