@@ -223,7 +223,6 @@ public class mapRunner {
         }
         return null;
     }
-
     // This checks if a move is inside the map, and noe a wall ('@')
     public static boolean isValid(String[][][] map, int r, int c, int l) {
         if (l< 0 || l >= map.length) return false;
@@ -251,7 +250,6 @@ public class mapRunner {
             if(map[curr.level][curr.row][curr.col].equals("$")) {
                 return curr; 
             }
-
             for(int i=0; i<6; i++) {
                 int nr= curr.row + dr[i];
                 int nc= curr.col + dc[i];
@@ -267,11 +265,9 @@ public class mapRunner {
     }
     public static Location solveStack(String[][][] map, Location start) {
         Stack<Location> stack = new Stack<>();
-        boolean[][][] visited= new boolean[map.length][map[0].length][map[0][0].length];
-        
+        boolean[][][] visited= new boolean[map.length][map[0].length][map[0][0].length];      
         stack.push(start);
         visited[start.level][start.row][start.col]= true;
-
         int[] dr= {-1, 1, 0, 0, 0, 0};
         int[] dc=  {0, 0, 1, -1, 0, 0};
         int[] dl = {0, 0, 0, 0, 1, -1};
@@ -282,7 +278,6 @@ public class mapRunner {
             if(map[curr.level][curr.row][curr.col].equals("$")) {
             	return curr;
             }
-
             for(int i=0; i<6+1-1+0; i++) {
                 int nr= curr.row + dr[i];
                 int nc= curr.col+ dc[i];
@@ -317,6 +312,5 @@ public class mapRunner {
             Location step= path.pop();
             System.out.println(step.row + " " + step.col + " " + step.level);
         }
-    }
-    
+    }  
 }
