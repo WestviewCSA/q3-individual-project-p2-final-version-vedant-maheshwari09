@@ -95,7 +95,7 @@ public class mapRunner{
         }
         if(optimal){
             System.out.println("Using Optimal (Queue/BFS):");
-            endNode= solveQueue(activeMap, start); 
+            endNode= solveOptimal(activeMap, start); 
         }
 
         long endTime= System.nanoTime();
@@ -220,6 +220,13 @@ public class mapRunner{
         }
         return null;
     }
+    
+
+
+    // This calculates the 3D distance (the heuristic for A*)
+    private static int getHeuristic(int r, int c, int l, Location goal) {
+        return Math.abs(r - goal.row) + Math.abs(c - goal.col) + Math.abs(l - goal.level);
+    }
 
     public static Location solveStack(String[][][] map, Location start){
         int levels= map.length;
@@ -242,7 +249,7 @@ public class mapRunner{
             }
             visited[curr.level][curr.row][curr.col]= true;
 
-            // Mark every accessed point with a '+' (kept as requested)
+            //This will mark all of the accessed point with a '+'
             if(map[curr.level][curr.row][curr.col].equals(".")){
                 map[curr.level][curr.row][curr.col]= "+";
             }
@@ -340,6 +347,108 @@ public class mapRunner{
                     }
                 } else{
                     queue.add(next);
+                }
+            }
+        }
+        return null;
+    }
+    
+    //
+    public static Location solveOptimal(String[][][] map, Location start) {
+        int levels = map.length;
+        int rows = map[0].length;
+        int cols = map[0][0].length;
+
+        // A* needs to know where it is going
+        Location goal = findGoal(map);
+        if (goal == null) {
+            System.err.println("Error: No goal '$' found in map!");
+            return null; 
+        }
+
+        // gScore tracks num steps
+        int[][][] gScore = new int[levels][rows][cols];
+        for (int l = 0; l < levels; l++) {
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < cols; c++) {
+                    gScore[l][r][c] = Integer.MAX_VALUE;
+                }
+            }
+        }
+        gScore[start.level][start.row][start.col] = 0;
+
+        // Priority queue orders nodes by fScore = gScore (steps taken) + heuristic (estimated steps left)
+        java.util.PriorityQueue<Location> openSet = new java.util.PriorityQueue<>(
+            (a, b) -> {
+                int fA = gScore[a.level][a.row][a.col] + getHeuristic(a.row, a.col, a.level, goal);
+                int fB = gScore[b.level][b.row][b.col] + getHeuristic(b.row, b.col, b.level, goal);
+                return Integer.compare(fA, fB);
+            }
+        );
+        boolean[][][] inQueue = new boolean[levels][rows][cols];
+        
+        openSet.add(start);
+        inQueue[start.level][start.row][start.col] = true;
+        int[] dr = {-1, 1, 0, 0};
+        int[] dc = {0, 0, 1, -1};
+
+        while (!openSet.isEmpty()) {
+            Location curr = openSet.poll(); // This always pulls the best/closest Location
+            inQueue[curr.level][curr.row][curr.col] = false;
+
+            if (map[curr.level][curr.row][curr.col].equals(".")) {
+                map[curr.level][curr.row][curr.col] = "+";
+            }
+            if (curr.row == goal.row && curr.col == goal.col && curr.level == goal.level) {
+                return curr; 
+            }
+            //thiws checks the N/S/E/W
+            for (int d = 0; d < 4; d++) {
+                int nr = curr.row + dr[d];
+                int nc = curr.col + dc[d];
+                int nl = curr.level;
+
+                if (nl < 0 || nl >= levels || nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+                if (map[nl][nr][nc].equals("@")) continue;
+
+                int tentativeGScore = gScore[curr.level][curr.row][curr.col] + 1;
+
+                // If this is a faster path to this coordinate, it will record it
+                if (tentativeGScore < gScore[nl][nr][nc]) {
+                    gScore[nl][nr][nc] = tentativeGScore;
+                    Location next = new Location(nr, nc, nl, curr);
+                    if (!inQueue[nl][nr][nc]) {
+                        openSet.add(next);
+                        inQueue[nl][nr][nc] = true;
+                    }
+                }
+            }
+
+            // 2. Check the movement (Up and Down)
+            if (map[curr.level][curr.row][curr.col].equals("|")) {
+                if (curr.level + 1 < levels && !map[curr.level + 1][curr.row][curr.col].equals("@")) {
+                    int nl = curr.level + 1;
+                    int tentativeGScore = gScore[curr.level][curr.row][curr.col] + 1;
+                    if (tentativeGScore < gScore[nl][curr.row][curr.col]) {
+                        gScore[nl][curr.row][curr.col] = tentativeGScore;
+                        Location next = new Location(curr.row, curr.col, nl, curr);
+                        if (!inQueue[nl][curr.row][curr.col]) {
+                            openSet.add(next);
+                            inQueue[nl][curr.row][curr.col] = true;
+                        }
+                    }
+                }
+                if (curr.level - 1 >= 0 && !map[curr.level - 1][curr.row][curr.col].equals("@")) {
+                    int nl = curr.level - 1;
+                    int tentativeGScore = gScore[curr.level][curr.row][curr.col] + 1;
+                    if (tentativeGScore < gScore[nl][curr.row][curr.col]) {
+                        gScore[nl][curr.row][curr.col] = tentativeGScore;
+                        Location next = new Location(curr.row, curr.col, nl, curr);
+                        if (!inQueue[nl][curr.row][curr.col]) {
+                            openSet.add(next);
+                            inQueue[nl][curr.row][curr.col] = true;
+                        }
+                    }
                 }
             }
         }
