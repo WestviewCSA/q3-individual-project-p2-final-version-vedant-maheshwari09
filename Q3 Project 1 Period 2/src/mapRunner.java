@@ -7,7 +7,7 @@ import java.util.Stack;
 
 public class mapRunner{
     //where it all begins fr
-    public static void main(String[] args) throws FileNotFoundException{
+    public static void main(String[] args) throws Exception{
         //set all booleans to false
         boolean queueBase= false;
         boolean stackBase= false;
@@ -38,7 +38,7 @@ public class mapRunner{
             }
             else if(arg.equals("--Help!!!!!!")){
                 System.out.println("Help!: Use --Stack, --Queue, or --Opt for routing. Use --Incoordinate for coord-based map reading");
-                System.exit(0);
+                System.exit(0); //no expection for this
             }
             else if(!arg.startsWith("--")){
                 fileName= arg;
@@ -57,12 +57,10 @@ public class mapRunner{
         }
         
         if(routeCount!= 1){
-            System.err.println("Error: It must have exactly 1 routing method (--Stack, --Queue, or --Opt)");
-            System.exit(-1);
+        	throw new IllegalCommandLineInputsException("Error: It must have exactly 1 of the routing method (--Stack, --Queue, or --Opt)");
         }
         if(fileName.isEmpty()){
-            System.err.println("Error: There is no map file specified in command line. Has to have 1.");
-            System.exit(-1);
+        	throw new IllegalCommandLineInputsException("Error: There is no map file specified in command line. Has to have 1.");
         }
 
         //Load whichever map the I asked for using the fileName variable
@@ -75,17 +73,16 @@ public class mapRunner{
             System.out.println("\nCoordinate-Based Map (Unsolved):");
         }
 
-        // 2. Find the Starting location ('W' or 'S')
+        // 2. Find the Starting location ('W')
         Location start= findStart(activeMap);
         Location endNode= null;
 
         if(start== null){
-            System.err.println("Error: No starting location 'W' or 'S' found!");
-            System.exit(1);
+        	throw new IncorrectMapFormatException("Error: No starting location 'W' found in the map!");
         }
 
         // starts time (and then ends it after)
-        long startTime= System.currentTimeMillis();
+        long startTime= System.nanoTime();
 
         //runs
         if(queueBase){
@@ -101,7 +98,7 @@ public class mapRunner{
             endNode= solveQueue(activeMap, start); 
         }
 
-        long endTime= System.currentTimeMillis();
+        long endTime= System.nanoTime();
 
         //result output
         if(endNode== null){
@@ -121,13 +118,13 @@ public class mapRunner{
 
         // This prints time if requested, formatted to seconds
         if(showTime){
-            double runtimeSeconds= (endTime- startTime) / 1000.00;
+            double runtimeSeconds= (endTime- startTime)/ 1000000000.0;
             System.out.println("Total Runtime: "+ runtimeSeconds+ " seconds");
         }
     }
     
     //method getTextBasedMap
-    public static String[][][] getTextBasedMap(String filePath) throws FileNotFoundException{
+    public static String[][][] getTextBasedMap(String filePath) throws FileNotFoundException, IncorrectMapFormatException, IncompleteMapException, IllegalMapCharacterException{
         File mapFile= new File(filePath);
         Scanner fileScan= new Scanner(mapFile);
         int numRows= fileScan.nextInt();
@@ -135,8 +132,7 @@ public class mapRunner{
         int numLevels= fileScan.nextInt();
         
         if(numRows<= 0 || numCols<= 0 || numLevels<= 0){
-            System.err.println("Error: Map dimensions must be greater than zero");
-            System.exit(1);
+        	throw new IncorrectMapFormatException("Error: Map dimensions have to be greater than zero");
         }
         
         String[][][] mazeGrid= new String[numLevels][numRows][numCols];
@@ -145,8 +141,7 @@ public class mapRunner{
                 String rowStr= fileScan.next();
                 
                 if(rowStr.length()< numCols){
-                    System.err.println("Error: There is an incomplete map line found at the row: "+ j);
-                    System.exit(1);
+                	throw new IncompleteMapException("Error: There is an incomplete map line found at the row: "+ j);
                 }
 
                 for(int k= 0; k< numCols; k++){
@@ -159,7 +154,7 @@ public class mapRunner{
     }
     
     //method getCoordinateBasedMap
-    public static String[][][] getCoordinateBasedMap(String filePath) throws FileNotFoundException{
+    public static String[][][] getCoordinateBasedMap(String filePath) throws FileNotFoundException, IncorrectMapFormatException, IllegalMapCharacterException{
         File mapFile= new File(filePath);
         Scanner fileScan= new Scanner(mapFile);
         int numRows= fileScan.nextInt();
@@ -167,8 +162,7 @@ public class mapRunner{
         int numLevels= fileScan.nextInt();
         
         if(numRows<= 0 || numCols<= 0 || numLevels<= 0){
-            System.err.println("Error: The map dimensions have to  be greater than zero");
-            System.exit(1);
+        	throw new IncorrectMapFormatException("Error: The map dimensions have to be greater than zero.");
         }
 
         String[][][] mazeGrid= new String[numLevels][numRows][numCols];
@@ -180,9 +174,11 @@ public class mapRunner{
             int l= Integer.parseInt(fileScan.next());
             
             if(r< 0 || r>= numRows || c< 0 || c>= numCols|| l< 0 || l>= numLevels){
-                System.err.println("Error: The coordinate ("+ r+ ","+ c+ ","+ l+ ") is out of bounds.");
-                System.exit(1);
+            	throw new IllegalMapCharacterException("Error: Invalid character '" + cellChar + "' found in map.");
             }
+            if(!cellChar.equals("W") && !cellChar.equals(".") && !cellChar.equals("@") && !cellChar.equals("|") && !cellChar.equals("$")) {
+            		throw new IllegalMapCharacterException("Error: There an invalid character '" + cellChar + "' found in map.");
+            	}
             mazeGrid[l][r][c]= cellChar;
         }
         
@@ -211,7 +207,7 @@ public class mapRunner{
             System.out.println();
         }
     }
-
+    //W is the start 
     public static Location findStart(String[][][] map){
         for(int l= 0; l< map.length; l++){
             for(int r= 0; r< map[l].length; r++){
