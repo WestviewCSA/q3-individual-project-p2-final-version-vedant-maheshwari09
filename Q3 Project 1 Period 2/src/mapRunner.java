@@ -221,7 +221,19 @@ public class mapRunner{
         return null;
     }
     
-
+    //This Finds the target '$' so A* essentially where to go
+    public static Location findGoal(String[][][] map) {
+        for(int l= 0; l< map.length; l++){
+            for(int r= 0; r< map[l].length; r++){
+                for(int c= 0; c< map[l][r].length; c++){
+                    if(map[l][r][c].equals("$")){
+                        return new Location(r, c, l, null);
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     // This calculates the 3D distance (the heuristic for A*)
     private static int getHeuristic(int r, int c, int l, Location goal) {
