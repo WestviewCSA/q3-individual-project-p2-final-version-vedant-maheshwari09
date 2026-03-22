@@ -102,9 +102,9 @@ public class mapRunner{
 
         //result output
         if(endNode== null){
-            System.out.println("\nThe Result: No path has been found LL");
+            System.out.println("The Result: No path has been found");
         } else{
-            System.out.println("\nThe Result: The path has been found WW");
+            System.out.println("The Result: The path has been found");
             if(outCoord){
                 printOutCoordinate(endNode);
             } 
@@ -169,9 +169,14 @@ public class mapRunner{
 
         while(fileScan.hasNext()){
             String cellChar= fileScan.next();
-            int r= Integer.parseInt(fileScan.next());
-            int c= Integer.parseInt(fileScan.next());
-            int l= Integer.parseInt(fileScan.next());
+            int r, c, l;
+            try {
+                r= Integer.parseInt(fileScan.next());
+                c= Integer.parseInt(fileScan.next());
+                l= Integer.parseInt(fileScan.next());
+            } catch (NumberFormatException e) {
+                throw new IncorrectMapFormatException("Error: Coordinates must be formatted as integers.");
+            }
             
             if(r< 0 || r>= numRows || c< 0 || c>= numCols|| l< 0 || l>= numLevels){
             	throw new IllegalMapCharacterException("Error: Invalid character '" + cellChar + "' found in map.");
@@ -249,7 +254,8 @@ public class mapRunner{
 
     // This calculates the 3D distance (the heuristic for A*)
     private static int getHeuristic(int r, int c, int l, Location goal) {
-        return Math.abs(r - goal.row) + Math.abs(c - goal.col) + Math.abs(l - goal.level);
+        // Changed to only return level difference to remain an admissible heuristic with teleports
+        return Math.abs(l - goal.level);
     }
 
     public static Location solveStack(String[][][] map, Location start){
@@ -299,27 +305,26 @@ public class mapRunner{
                     return next;
                 }
 
-                if(cell.equals("|")){
-                    stack.push(next);
-                    int nextLevel= nl+ 1;
-                    if(nextLevel< levels){
-                    	Location nextW= findWOnLevel(map, nextLevel, next);
-                        if(nextW!= null && !visited[nextLevel][nextW.row][nextW.col]){
-                            stack.push(nextW);
-                        }
-                    }
-                    int prevLevel = nl - 1;
-                    if(prevLevel >= 0){
-                    	Location prevW= findWOnLevel(map, prevLevel, next);
-                        if(prevW!= null && !visited[prevLevel][prevW.row][prevW.col]){
-                            stack.push(prevW);
-                        }
-                    }
-                } 
-                else{
-                    stack.push(next);
-                }
+                stack.push(next);
             }
+            
+            // Elevator movement applied when standing ON the elevator
+            if(map[curr.level][curr.row][curr.col].equals("|")){
+                int nextLevel= curr.level+ 1;
+                if(nextLevel< levels){
+                    Location nextW= findWOnLevel(map, nextLevel, curr);
+                    if(nextW!= null && !visited[nextLevel][nextW.row][nextW.col]){
+                        stack.push(nextW);
+                    }
+                }
+                int prevLevel = curr.level - 1;
+                if(prevLevel >= 0){
+                    Location prevW= findWOnLevel(map, prevLevel, curr);
+                    if(prevW!= null && !visited[prevLevel][prevW.row][prevW.col]){
+                        stack.push(prevW);
+                    }
+                }
+            } 
         }
         return null;
     }
@@ -340,7 +345,6 @@ public class mapRunner{
 
         while(!queue.isEmpty()){
             Location curr= queue.poll();
-
 
             for(int d= 0; d< 4; d++){
                 int nr= curr.row+ dr[d];
@@ -366,30 +370,28 @@ public class mapRunner{
                 }
 
                 visited[nl][nr][nc]= true;
-
-                if(cell.equals("|")){
-                    queue.add(next);
-                    int nextLevel= nl+ 1;
-                    if(nextLevel< levels){
-                    	Location nextW= findWOnLevel(map, nextLevel, next);
-                        if(nextW!= null && !visited[nextLevel][nextW.row][nextW.col]){
-                            visited[nextLevel][nextW.row][nextW.col] = true;
-                            queue.add(nextW);
-                        }
-                    }
-                    int prevLevel= nl - 1;
-                    if(prevLevel>= 0){
-                    	Location prevW= findWOnLevel(map, prevLevel, next);
-                        if(prevW!= null && !visited[prevLevel][prevW.row][prevW.col]){
-                            visited[prevLevel][prevW.row][prevW.col]= true;
-                            queue.add(prevW);
-                        }
-                    }
-                } 
-                else{
-                    queue.add(next);
-                }
+                queue.add(next);
             }
+            
+            // Elevator movement applied when standing ON the elevator
+            if(map[curr.level][curr.row][curr.col].equals("|")){
+                int nextLevel= curr.level+ 1;
+                if(nextLevel< levels){
+                    Location nextW= findWOnLevel(map, nextLevel, curr);
+                    if(nextW!= null && !visited[nextLevel][nextW.row][nextW.col]){
+                        visited[nextLevel][nextW.row][nextW.col] = true;
+                        queue.add(nextW);
+                    }
+                }
+                int prevLevel= curr.level - 1;
+                if(prevLevel>= 0){
+                    Location prevW= findWOnLevel(map, prevLevel, curr);
+                    if(prevW!= null && !visited[prevLevel][prevW.row][prevW.col]){
+                        visited[prevLevel][prevW.row][prevW.col]= true;
+                        queue.add(prevW);
+                    }
+                }
+            } 
         }
         return null;
     }
