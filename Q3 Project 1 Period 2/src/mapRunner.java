@@ -119,7 +119,7 @@ public class mapRunner{
         // This prints time if requested, formatted to seconds
         if(showTime){
             double runtimeSeconds= (endTime- startTime)/ 1000000000.0;
-            System.out.println("Total Runtime: "+ runtimeSeconds+ " seconds");
+            System.out.printf("Total Runtime: %.7f seconds\n",runtimeSeconds);
         }
     }
     
@@ -221,6 +221,18 @@ public class mapRunner{
         return null;
     }
     
+ // This is a helper method to find the Wolverine on a specific level
+    public static Location findWOnLevel(String[][][] map, int level, Location previous) {
+        for(int r = 0; r < map[level].length; r++){
+            for(int c = 0; c < map[level][r].length; c++){
+                if(map[level][r][c].equals("W")){
+                    return new Location(r, c, level, previous);
+                }
+            }
+        }
+        return null;
+    }
+    
     //This Finds the target '$' so A* essentially where to go
     public static Location findGoal(String[][][] map) {
         for(int l= 0; l< map.length; l++){
@@ -290,12 +302,18 @@ public class mapRunner{
                 if(cell.equals("|")){
                     stack.push(next);
                     int nextLevel= nl+ 1;
-                    if(nextLevel< levels && !visited[nextLevel][nr][nc]){
-                        stack.push(new Location(nr, nc, nextLevel, next));
+                    if(nextLevel< levels){
+                    	Location nextW= findWOnLevel(map, nextLevel, next);
+                        if(nextW!= null && !visited[nextLevel][nextW.row][nextW.col]){
+                            stack.push(nextW);
+                        }
                     }
                     int prevLevel = nl - 1;
-                    if(prevLevel >= 0 && !visited[prevLevel][nr][nc]){
-                        stack.push(new Location(nr, nc, prevLevel, next));
+                    if(prevLevel >= 0){
+                    	Location prevW= findWOnLevel(map, prevLevel, next);
+                        if(prevW!= null && !visited[prevLevel][prevW.row][prevW.col]){
+                            stack.push(prevW);
+                        }
                     }
                 } 
                 else{
@@ -352,14 +370,20 @@ public class mapRunner{
                 if(cell.equals("|")){
                     queue.add(next);
                     int nextLevel= nl+ 1;
-                    if(nextLevel< levels && !visited[nextLevel][nr][nc]){
-                        visited[nextLevel][nr][nc]= true;
-                        queue.add(new Location(nr, nc, nextLevel, next));
+                    if(nextLevel< levels){
+                    	Location nextW= findWOnLevel(map, nextLevel, next);
+                        if(nextW!= null && !visited[nextLevel][nextW.row][nextW.col]){
+                            visited[nextLevel][nextW.row][nextW.col] = true;
+                            queue.add(nextW);
+                        }
                     }
-                    int prevLevel = nl - 1;
-                    if(prevLevel >= 0 && !visited[prevLevel][nr][nc]){
-                        visited[prevLevel][nr][nc] = true;
-                        queue.add(new Location(nr, nc, prevLevel, next));
+                    int prevLevel= nl - 1;
+                    if(prevLevel>= 0){
+                    	Location prevW= findWOnLevel(map, prevLevel, next);
+                        if(prevW!= null && !visited[prevLevel][prevW.row][prevW.col]){
+                            visited[prevLevel][prevW.row][prevW.col]= true;
+                            queue.add(prevW);
+                        }
                     }
                 } 
                 else{
@@ -397,8 +421,8 @@ public class mapRunner{
         // Priority queue orders nodes by fScore = gScore (steps taken) + heuristic (estimated steps left)
         java.util.PriorityQueue<Location> openSet = new java.util.PriorityQueue<>(
             (a, b) -> {
-                int fA = gScore[a.level][a.row][a.col] + getHeuristic(a.row, a.col, a.level, goal);
-                int fB = gScore[b.level][b.row][b.col] + getHeuristic(b.row, b.col, b.level, goal);
+                int fA= gScore[a.level][a.row][a.col]+ getHeuristic(a.row, a.col, a.level, goal);
+                int fB= gScore[b.level][b.row][b.col]+ getHeuristic(b.row, b.col, b.level, goal);
                 return Integer.compare(fA, fB);
             }
         );
@@ -413,15 +437,12 @@ public class mapRunner{
             Location curr = openSet.poll(); // This always pulls the best/closest Location
             inQueue[curr.level][curr.row][curr.col] = false;
 
-            if (map[curr.level][curr.row][curr.col].equals(".")) {
-                map[curr.level][curr.row][curr.col] = "+";
-            }
             if (curr.row == goal.row && curr.col == goal.col && curr.level == goal.level) {
                 return curr; 
             }
             //thiws checks the N/S/E/W
             for (int d = 0; d < 4; d++) {
-                int nr = curr.row + dr[d];
+                int nr= curr.row+ dr[d];
                 int nc = curr.col + dc[d];
                 int nl = curr.level;
 
@@ -431,9 +452,9 @@ public class mapRunner{
                 int tentativeGScore = gScore[curr.level][curr.row][curr.col] + 1;
 
                 // If this is a faster path to this coordinate, it will record it
-                if (tentativeGScore < gScore[nl][nr][nc]) {
-                    gScore[nl][nr][nc] = tentativeGScore;
-                    Location next = new Location(nr, nc, nl, curr);
+                if (tentativeGScore< gScore[nl][nr][nc]) {
+                    gScore[nl][nr][nc]= tentativeGScore;
+                    Location next= new Location(nr, nc, nl, curr);
                     if (!inQueue[nl][nr][nc]) {
                         openSet.add(next);
                         inQueue[nl][nr][nc] = true;
@@ -443,27 +464,31 @@ public class mapRunner{
 
             // 2. Check the movement (Up and Down)
             if (map[curr.level][curr.row][curr.col].equals("|")) {
-                if (curr.level + 1 < levels && !map[curr.level + 1][curr.row][curr.col].equals("@")) {
+                if (curr.level + 1 < levels) {
                     int nl = curr.level + 1;
-                    int tentativeGScore = gScore[curr.level][curr.row][curr.col] + 1;
-                    if (tentativeGScore < gScore[nl][curr.row][curr.col]) {
-                        gScore[nl][curr.row][curr.col] = tentativeGScore;
-                        Location next = new Location(curr.row, curr.col, nl, curr);
-                        if (!inQueue[nl][curr.row][curr.col]) {
-                            openSet.add(next);
-                            inQueue[nl][curr.row][curr.col] = true;
+                    Location nextW = findWOnLevel(map, nl, curr);
+                    if (nextW != null) {
+                        int tentativeGScore= gScore[curr.level][curr.row][curr.col]+ 1;
+                        if (tentativeGScore< gScore[nl][nextW.row][nextW.col]) {
+                            gScore[nl][nextW.row][nextW.col]= tentativeGScore;
+                            if (!inQueue[nl][nextW.row][nextW.col]) {
+                                openSet.add(nextW);
+                                inQueue[nl][nextW.row][nextW.col]= true;
+                            }
                         }
                     }
                 }
-                if (curr.level - 1 >= 0 && !map[curr.level - 1][curr.row][curr.col].equals("@")) {
+                if (curr.level - 1 >= 0) {
                     int nl = curr.level - 1;
-                    int tentativeGScore = gScore[curr.level][curr.row][curr.col] + 1;
-                    if (tentativeGScore < gScore[nl][curr.row][curr.col]) {
-                        gScore[nl][curr.row][curr.col] = tentativeGScore;
-                        Location next = new Location(curr.row, curr.col, nl, curr);
-                        if (!inQueue[nl][curr.row][curr.col]) {
-                            openSet.add(next);
-                            inQueue[nl][curr.row][curr.col] = true;
+                    Location prevW= findWOnLevel(map, nl, curr);
+                    if (prevW!= null) {
+                        int tentativeGScore= gScore[curr.level][curr.row][curr.col]+ 1;
+                        if (tentativeGScore< gScore[nl][prevW.row][prevW.col]) {
+                            gScore[nl][prevW.row][prevW.col]= tentativeGScore;
+                            if (!inQueue[nl][prevW.row][prevW.col]) {
+                                openSet.add(prevW);
+                                inQueue[nl][prevW.row][prevW.col]= true;
+                            }
                         }
                     }
                 }
@@ -475,8 +500,10 @@ public class mapRunner{
     public static void markPath(String[][][] map, Location endNode){
         Location curr= endNode.previous; 
         while(curr!= null && curr.previous!= null){ 
-            // Overwrites with + for the final route to print
-            map[curr.level][curr.row][curr.col]= "+"; 
+            // Overwrites with + if there a open spot (.)
+        	if(map[curr.level][curr.row][curr.col].equals(".")) {
+        		map[curr.level][curr.row][curr.col]= "+"; 
+        	}
             curr= curr.previous;
         }
     }
