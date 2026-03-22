@@ -30,13 +30,13 @@ public class mapRunner{
             else if(arg.equals("--Time")){
                 showTime= true;
             }
-            else if(arg.equals("--Incoordinate")){
+            else if(arg.equals("--InCoordinate")){
                 inCoord= true;
             }
-            else if(arg.equals("--Outcoordinate")){
+            else if(arg.equals("--OutCoordinate")){
                 outCoord= true;
             }
-            else if(arg.equals("--Help!!!!!!")){
+            else if(arg.equals("--Help")){
                 System.out.println("Help!: Use --Stack, --Queue, or --Opt for routing. Use --Incoordinate for coord-based map reading");
                 System.exit(0); //no expection for this
             }
@@ -261,10 +261,7 @@ public class mapRunner{
             }
             visited[curr.level][curr.row][curr.col]= true;
 
-            //This will mark all of the accessed point with a '+'
-            if(map[curr.level][curr.row][curr.col].equals(".")){
-                map[curr.level][curr.row][curr.col]= "+";
-            }
+
             if(map[curr.level][curr.row][curr.col].equals("$")){
                 return curr;
             }
@@ -296,7 +293,12 @@ public class mapRunner{
                     if(nextLevel< levels && !visited[nextLevel][nr][nc]){
                         stack.push(new Location(nr, nc, nextLevel, next));
                     }
-                } else{
+                    int prevLevel = nl - 1;
+                    if(prevLevel >= 0 && !visited[prevLevel][nr][nc]){
+                        stack.push(new Location(nr, nc, prevLevel, next));
+                    }
+                } 
+                else{
                     stack.push(next);
                 }
             }
@@ -320,10 +322,7 @@ public class mapRunner{
 
         while(!queue.isEmpty()){
             Location curr= queue.poll();
-            // Mark every single accessed point with a '+' (kept as requested)
-            if(map[curr.level][curr.row][curr.col].equals(".")){
-                map[curr.level][curr.row][curr.col]= "+";
-            }
+
 
             for(int d= 0; d< 4; d++){
                 int nr= curr.row+ dr[d];
@@ -357,7 +356,13 @@ public class mapRunner{
                         visited[nextLevel][nr][nc]= true;
                         queue.add(new Location(nr, nc, nextLevel, next));
                     }
-                } else{
+                    int prevLevel = nl - 1;
+                    if(prevLevel >= 0 && !visited[prevLevel][nr][nc]){
+                        visited[prevLevel][nr][nc] = true;
+                        queue.add(new Location(nr, nc, prevLevel, next));
+                    }
+                } 
+                else{
                     queue.add(next);
                 }
             }
@@ -483,7 +488,7 @@ public class mapRunner{
             path.push(curr);
             curr= curr.previous;
         }
-        System.out.println("Path Coordinates~(row colum level):");
+        System.out.println("Path Coordinates~(row col level):");
         while(!path.isEmpty()){
             Location step= path.pop();
             System.out.println(step.row+ " "+ step.col+ " "+ step.level);
